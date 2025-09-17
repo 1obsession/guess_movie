@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 КиноВикторина - Угадай фильм</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 2px solid #404040;
+            color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            border-color: #4ecdc4;
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+            border-color: #4ecdc4;
+            color: #0a0a0a;
+        }
+
+        .quiz-content {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+        }
+
+        .question-image {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin: 0 auto 30px;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #404040;
+            transition: transform 0.3s ease;
+        }
+
+        .question-image:hover {
+            transform: scale(1.02);
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffffff;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .quote-content {
+            font-style: italic;
+            font-size: 2rem;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .option-btn {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 2px solid #404040;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            border-color: #4ecdc4;
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            border-color: #2ecc71;
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border-color: #e74c3c;
+            color: #ffffff;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .result-correct {
+            color: #2ecc71;
+        }
+
+        .result-incorrect {
+            color: #e74c3c;
+        }
+
+        .result-poster {
+            max-width: 300px;
+            border-radius: 15px;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #404040;
+        }
+
+        .next-btn {
+            background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+            border: none;
+            color: #0a0a0a;
+            padding: 20px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 30px auto;
+            display: block;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.5rem;
+            color: #4ecdc4;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #333;
+            border-top: 4px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #cccccc;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .quiz-content {
+                padding: 20px;
+            }
+
+            .question-image {
+                height: 300px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mode-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Специальные эффекты */
+        .glow-text {
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header fade-in">
+            <h1 class="title">🎬 КиноВикторина</h1>
+            <p class="subtitle">Проверь свои знания кино - угадай фильм по кадру, цитате или актерам!</p>
+
+            <!-- Выбор режима -->
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="loadQuestion('image')">
+                    🎞️ По кадру
+                </button>
+                <button class="mode-btn" onclick="loadQuestion('quote')">
+                    💬 По цитате
+                </button>
+                <button class="mode-btn" onclick="loadQuestion('actor')">
+                    👨‍🎤 По актерам
+                </button>
+            </div>
+
+            <!-- Статистика -->
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="glow-text">🎯 Правильно: </span>
+                    <span id="correct-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="glow-text">🔥 Серия: </span>
+                    <span id="streak-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="glow-text">⭐ Всего: </span>
+                    <span id="total-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Загрузка -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Загружаем крутой вопрос...</p>
+        </div>
+
+        <!-- Основной контент -->
+        <div id="question-container" class="hidden">
+            <div class="quiz-content fade-in">
+                <!-- Контент вопроса -->
+                <div id="question-content"></div>
+
+                <!-- Варианты ответов -->
+                <div class="options-grid" id="options"></div>
+            </div>
+        </div>
+
+        <!-- Результат -->
+        <div id="result" class="result-container hidden">
+            <h2 id="result-title" class="result-title"></h2>
+            <p id="result-message"></p>
+            <img id="result-poster" class="result-poster" src="" alt="">
+        </div>
+
+        <!-- Следующий вопрос -->
+        <button id="next-btn" class="next-btn hidden pulse" onclick="loadQuestion()">
+            Следующий вопрос 🚀
+        </button>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let currentQuestion = null;
+        let currentMode = 'image';
+        let stats = {
+            correct: 0,
+            incorrect: 0,
+            streak: 0
+        };
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestion('image');
+            updateStats();
+        });
+
+
+        // Функция для получения CSRF токена
+        function getCsrfToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Функция показа/скрытия элементов
+        function toggleElement(id, show) {
+            const element = document.getElementById(id);
+            if (show) {
+                element.classList.remove('hidden');
+                element.classList.add('visible');
+            } else {
+                element.classList.add('hidden');
+                element.classList.remove('visible');
+            }
+        }
+
+        // Загрузка вопроса
+        async function loadQuestion(mode = null) {
+    if (mode) {
+        currentMode = mode;
+    }
+
+    try {
+        toggleElement('loading', true);
+        toggleElement('question-container', false);
+        toggleElement('result', false);
+        toggleElement('next-btn', false);
+
+        const response = await fetch(`/api/quiz/?mode=${currentMode}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const question = await response.json();
+
+        // ✅ ПРОВЕРЯЕМ, ЧТО ЕСТЬ film_id
+        if (!question.film_id) {
+            console.error('No film_id in response:', question);
+            throw new Error('Invalid question data: missing film_id');
+        }
+
+        currentQuestion = question;
+        console.log('Current question:', currentQuestion); // ✅ ДЛЯ ОТЛАДКИ
+        renderQuestion(question);
+
+        toggleElement('loading', false);
+        toggleElement('question-container', true);
+
+    } catch (error) {
+        console.error('Ошибка загрузки вопроса:', error);
+        toggleElement('loading', false);
+        alert('Не удалось загрузить вопрос: ' + error.message);
+    }
+}
+
+        // Отображение вопроса
+        function renderQuestion(question) {
+            const contentDiv = document.getElementById('question-content');
+            const optionsDiv = document.getElementById('options');
+
+            // Очищаем предыдущий вопрос
+            contentDiv.innerHTML = '';
+            optionsDiv.innerHTML = '';
+
+            // Отображаем контент в зависимости от типа вопроса
+            if (question.mode === 'image') {
+                contentDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <img src="${question.content}" alt="Кадр из фильма" class="question-image">
+                        <p style="font-size: 18px; margin-top: 15px;">Какой это фильм?</p>
+                    </div>
+                `;
+            } else if (question.mode === 'quote') {
+                contentDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-style: italic; font-size: 20px; margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                            "${question.content}"
+                        </div>
+                        <p style="font-size: 18px;">Из какого это фильма/сериала?</p>
+                    </div>
+                `;
+            } else if (question.mode === 'actor') {
+                contentDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <p style="font-size: 18px; margin-bottom: 20px;">Какой фильм с участием этих актеров?</p>
+                        <p style="font-size: 20px; font-weight: bold;">${question.content}</p>
+                    </div>
+                `;
+            }
+
+            // Создаем кнопки вариантов ответов
+            if (question.options && question.options.length > 0) {
+                question.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.onclick = () => checkAnswer(option);
+                    optionsDiv.appendChild(button);
+                });
+            } else {
+                optionsDiv.innerHTML = '<p>Нет вариантов ответа</p>';
+            }
+        }
+
+        // Проверка ответа
+        async function checkAnswer(userAnswer) {
+    try {
+        console.log('Checking answer for question:', currentQuestion); // ✅ ОТЛАДКА
+
+        if (!currentQuestion || !currentQuestion.film_id) {
+            throw new Error('Нет данных о текущем вопросе. film_id: ' + (currentQuestion ? currentQuestion.film_id : 'undefined'));
+        }
+
+        const response = await fetch('/api/answer/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                film_id: currentQuestion.film_id,
+                answer: userAnswer
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        showResult(result, userAnswer);
+
+    } catch (error) {
+        console.error('Ошибка проверки ответа:', error);
+        alert('Ошибка при проверке ответа: ' + error.message);
+    }
+}
+
+        // Показать результат
+        function showResult(result, userAnswer) {
+            const resultDiv = document.getElementById('result');
+            const nextBtn = document.getElementById('next-btn');
+
+            // Блокируем кнопки после ответа
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === result.right_answer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === userAnswer && !result.correct) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            // Показываем результат
+            resultDiv.innerHTML = `
+                <h2 style="color: ${result.correct ? '#4CAF50' : '#f44336'};">
+                    ${result.correct ? '✅ Правильно!' : '❌ Неправильно!'}
+                </h2>
+                ${result.correct ? '' : `<p style="font-size: 18px;">Правильный ответ: <strong>${result.right_answer}</strong></p>`}
+                ${result.poster ? `<img src="${result.poster}" style="max-width: 200px; margin-top: 15px; border-radius: 5px;">` : ''}
+            `;
+
+            toggleElement('result', true);
+            toggleElement('next-btn', true);
+        }
+
+        // Загружаем первый вопрос при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestion('image');
+        });
+
+        // Обработка ошибок
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+    </script>
+</body>
+</html>
