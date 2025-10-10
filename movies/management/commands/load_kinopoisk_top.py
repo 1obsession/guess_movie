@@ -23,12 +23,12 @@ class Command(BaseCommand):
         }
 
         params = {
-            'page': 2,
+            'page': 7,
             'limit': 50,
             'lists': 'top250',
             'sortField': 'rating.kp',
             'sortType': '-1',
-            'selectFields': ['name', 'year', 'poster', 'description', 'persons', 'id', 'rating']
+            'selectFields': ['name', 'year', 'poster', 'description', 'persons', 'id', 'rating', 'countries']
         }
 
         try:
@@ -75,7 +75,8 @@ class Command(BaseCommand):
                 'plot': movie_data.get('description', ''),
                 'director': director,
                 'actors': actors,
-                'rating': movie_data.get('rating', {}).get('kp', 0)
+                'rating': movie_data.get('rating', {}).get('kp', 0),
+                'country': movie_data.get('countries', '').name,
             }
         )
 
